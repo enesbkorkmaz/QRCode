@@ -1,4 +1,7 @@
 
+using Microsoft.EntityFrameworkCore;
+using QRCode.Server.Data;
+
 namespace QRCode.Server
 {
     public class Program
@@ -10,6 +13,9 @@ namespace QRCode.Server
             // Add services to the container.
 
             builder.Services.AddControllers();
+            // Veritabaný (PostgreSQL) DI Tanýmlamasý
+            builder.Services.AddDbContext<QrcodeDBContext>(options =>
+                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
 
