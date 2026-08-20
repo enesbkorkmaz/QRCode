@@ -1,6 +1,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using QRCode.Server.Data;
+using QRCode.Server.Services;
 
 namespace QRCode.Server
 {
@@ -12,12 +13,16 @@ namespace QRCode.Server
 
             // Add services to the container.
 
-            builder.Services.AddControllers();
-            // Veritabaný (PostgreSQL) DI Tanýmlamasý
+            builder.Services.AddControllers().AddJsonOptions(x =>
+             x.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles);
             builder.Services.AddDbContext<QrcodeDBContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddOpenApi();
+            // Servis Katmaný DI Tanýmlamasý
+            builder.Services.AddScoped<IQrcodeService, QrcodeService>();
+            builder.Services.AddScoped<IRoleService, RoleService>(); 
+
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
 
@@ -27,7 +32,8 @@ namespace QRCode.Server
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
-                app.MapOpenApi();
+                app.UseSwagger();
+                app.UseSwaggerUI();
             }
 
             app.UseHttpsRedirection();
