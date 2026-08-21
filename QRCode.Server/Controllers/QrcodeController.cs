@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization; // 1. EKLENEN SATIR: Güvenlik Kütüphanesi
 using Microsoft.AspNetCore.Mvc;
 using QRCode.Server.Models;
 using QRCode.Server.Services;
 
 namespace QRCode.Server.Controllers
 {
+    [Authorize] // 2. EKLENEN SATIR: İŞTE GÜVENLİK KALKANIMIZ! (Token'ı olmayan buraya giremez)
     [Route("api/[controller]")]
     [ApiController]
     public class QrcodeController : ControllerBase
