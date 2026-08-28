@@ -28,6 +28,17 @@ namespace QRCode.Server
 
             builder.Services.AddEndpointsApiExplorer();
 
+            // CORS Politikasý (Angular'ýn Backend'e eriþmesine izin veriyoruz)
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy.AllowAnyOrigin()
+                          .AllowAnyHeader()
+                          .AllowAnyMethod();
+                });
+            });
+
             // 1. JWT Kimlik Doðrulama Ayarlarý
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -72,7 +83,6 @@ namespace QRCode.Server
             app.UseDefaultFiles();
             app.MapStaticAssets();
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -81,7 +91,8 @@ namespace QRCode.Server
 
             app.UseHttpsRedirection();
 
-            // KÝMLÝK VE YETKÝ KONTROLÜ (Sýralama çok önemlidir!)
+            app.UseCors("AllowAll");
+
             app.UseAuthentication();
             app.UseAuthorization();
 

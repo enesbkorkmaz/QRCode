@@ -1,0 +1,56 @@
+<div style="max-width: 900px; margin: 40px auto; font-family: sans-serif; padding: 20px;">
+
+  <!-- Üst Başlık ve Çıkış Butonu -->
+  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 25px;">
+    <h2>📌 QR Kod Yönetim Paneli</h2>
+    <button (click)="logout()" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+      Çıkış Yap
+    </button>
+  </div>
+
+  <!-- Yeni QR Kod Ekleme Formu -->
+  <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #e9ecef;">
+    <h4 style="margin-top: 0;">Yeni QR Kod Ekle</h4>
+    <div style="display: flex; gap: 10px;">
+      <input type="text" [(ngModel)]="newUrl" placeholder="Yönlendirilecek URL (Örn: https://google.com)"
+             style="flex: 1; padding: 10px; border: 1px solid #ced4da; border-radius: 4px;">
+      <button (click)="createQrcode()" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+        Ekle
+      </button>
+    </div>
+  </div>
+
+  <!-- QR Kod Tablosu -->
+  <table style="width: 100%; border-collapse: collapse; text-align: left;">
+    <thead>
+      <tr style="background: #f1f3f5; border-bottom: 2px solid #dee2e6;">
+        <th style="padding: 12px;">ID</th>
+        <th style="padding: 12px;">Hedef URL</th>
+        <th style="padding: 12px;">GUID (Özel Kod)</th>
+        <th style="padding: 12px;">Durum</th>
+        <th style="padding: 12px; text-align: center;">İşlemler</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of qrcodes" style="border-bottom: 1px solid #dee2e6;">
+        <td style="padding: 12px;">{{ item.id }}</td>
+        <td style="padding: 12px;"><a [href]="item.url" target="_blank">{{ item.url }}</a></td>
+        <td style="padding: 12px; font-family: monospace; color: #6c757d;">{{ item.guid }}</td>
+        <td style="padding: 12px;">
+          <span [style.color]="item.active ? 'green' : 'red'" style="font-weight: bold;">
+            {{ item.active ? 'Aktif' : 'Pasif' }}
+          </span>
+        </td>
+        <td style="padding: 12px; text-align: center;">
+          <button (click)="deleteQrcode(item.id)" style="background: #e63946; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">
+            Sil
+          </button>
+        </td>
+      </tr>
+      <tr *ngIf="qrcodes.length === 0">
+        <td colspan="5" style="text-align: center; padding: 20px; color: #888;">Henüz kayıtlı bir QR kod bulunmuyor.</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
