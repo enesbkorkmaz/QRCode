@@ -33,6 +33,8 @@ export class DashboardComponent implements OnInit {
     const newQr: Qrcode = {
       id: 0,
       url: this.newUrl,
+      // Tarayıcının kendi kütüphanesini kullanarak benzersiz bir şifreli metin (GUID) üretiyoruz
+      guid: crypto.randomUUID(),
       active: true
     };
 
@@ -41,7 +43,10 @@ export class DashboardComponent implements OnInit {
         this.newUrl = '';
         this.loadQrcodes(); // Listeyi güncelle
       },
-      error: (err) => console.error('Ekleme hatası:', err)
+      error: (err) => {
+        console.error('Ekleme hatası:', err);
+        alert('Ekleme başarısız oldu. Lütfen konsolu kontrol edin.');
+      }
     });
   }
 
