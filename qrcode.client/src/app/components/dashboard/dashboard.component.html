@@ -25,10 +25,9 @@
     <thead>
       <tr style="background: #f1f3f5; border-bottom: 2px solid #dee2e6;">
         <th style="padding: 12px;">ID</th>
-        <!-- İŞTE EKSİK OLAN SÜTUNUMUZ BURADA -->
-        <th style="padding: 12px;">QR Görseli</th>
+        <th style="padding: 12px;">QR Kod</th>
         <th style="padding: 12px;">Hedef URL</th>
-        <th style="padding: 12px;">GUID (Özel Kod)</th>
+        <th style="padding: 12px;">GUID</th>
         <th style="padding: 12px;">Durum</th>
         <th style="padding: 12px; text-align: center;">İşlemler</th>
       </tr>
@@ -37,7 +36,6 @@
       <tr *ngFor="let item of qrcodes" style="border-bottom: 1px solid #dee2e6;">
         <td style="padding: 12px;">{{ item.id }}</td>
 
-        <!-- İŞTE EKSİK OLAN KAREKOD ÇİZİM ALANIMIZ BURADA -->
         <td style="padding: 12px;">
           <qrcode [qrdata]="'http://localhost:64103/r/' + item.guid"
                   [width]="100"
