@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
-  standalone: false, // Angular 19 kuralına uygun şekilde modüle bağlıyoruz
+  standalone: false, 
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })

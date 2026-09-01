@@ -21,7 +21,6 @@ export class RedirectComponent implements OnInit {
       // Backend'e sor: Bu GUID hangi URL'ye ait?
       this.qrcodeService.getByGuid(guid).subscribe({
         next: (data) => {
-          // Asıl hedefe fırlat!
           window.location.href = data.url;
         },
         error: () => alert('Geçersiz veya süresi dolmuş QR Kod!')
