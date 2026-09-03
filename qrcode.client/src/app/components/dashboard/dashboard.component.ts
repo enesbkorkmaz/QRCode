@@ -1,20 +1,29 @@
 import { Component, OnInit } from '@angular/core';
 import { QrcodeService, Qrcode } from '../../services/qrcode.service';
+import { AuthService } from '../../services/auth.service'; // AUTH SERVICE EKLENDİ
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
-  standalone: false, 
+  standalone: false,
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
   qrcodes: Qrcode[] = [];
   newUrl: string = '';
+  isAdmin: boolean = false; // KULLANICI YETKİSİNİ TUTACAĞIMIZ DEĞİŞKEN
 
-  constructor(private qrcodeService: QrcodeService, private router: Router) { }
+  constructor(
+    private qrcodeService: QrcodeService,
+    private authService: AuthService, // İÇERİ AKTARILDI
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
+    // Sayfa açıldığında kişinin yetkisini kontrol et
+    this.isAdmin = this.authService.isAdmin();
+
     this.loadQrcodes();
   }
 

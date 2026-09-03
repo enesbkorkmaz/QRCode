@@ -1,0 +1,42 @@
+<div style="max-width: 900px; margin: 40px auto; font-family: sans-serif; padding: 20px;">
+
+  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 25px;">
+    <h2>👥 Kullanıcı Yönetimi</h2>
+    <a routerLink="/dashboard" style="background: #6c757d; color: white; text-decoration: none; padding: 8px 16px; border-radius: 4px; font-weight: bold;">
+      ⬅ Panele Dön
+    </a>
+  </div>
+
+  <table style="width: 100%; border-collapse: collapse; text-align: left; border: 1px solid #dee2e6;">
+    <thead>
+      <tr style="background: #343a40; color: white;">
+        <th style="padding: 12px;">ID</th>
+        <th style="padding: 12px;">Ad Soyad</th>
+        <th style="padding: 12px;">E-Posta</th>
+        <th style="padding: 12px;">Rol</th>
+        <th style="padding: 12px;">Durum</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let u of users" style="border-bottom: 1px solid #dee2e6;">
+        <td style="padding: 12px;">{{ u.id }}</td>
+        <td style="padding: 12px; font-weight: bold;">{{ u.firstname }} {{ u.lastname }}</td>
+        <td style="padding: 12px;">{{ u.email }}</td>
+        <td style="padding: 12px;">
+          <!-- 1 ise Admin, 2 ise User yazdırıyoruz -->
+          <span style="background: #17a2b8; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.85em;">
+            {{ u.roleid === 1 ? 'Admin' : 'User' }}
+          </span>
+        </td>
+        <td style="padding: 12px;">
+          <span [style.color]="u.active ? 'green' : 'red'" style="font-weight: bold;">
+            {{ u.active ? 'Aktif' : 'Pasif' }}
+          </span>
+        </td>
+      </tr>
+      <tr *ngIf="users.length === 0">
+        <td colspan="5" style="text-align: center; padding: 20px;">Sistemde kullanıcı bulunamadı.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
