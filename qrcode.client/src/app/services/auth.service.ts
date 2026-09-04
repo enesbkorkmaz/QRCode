@@ -31,4 +31,18 @@ export class AuthService {
   isAdmin(): boolean {
     return this.getUserRole() === '1';
   }
+  // Token'ı çözüp giriş yapan kişinin ID'sini (nameid) okuyan fonksiyon
+  getCurrentUserId(): number | null {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decodedToken: any = jwtDecode(token);
+        // .NET Identity, id'yi 'nameid' olarak gömer. Bunu sayıya çeviriyoruz.
+        return parseInt(decodedToken.nameid, 10);
+      } catch (error) {
+        return null;
+      }
+    }
+    return null;
+  }
 }

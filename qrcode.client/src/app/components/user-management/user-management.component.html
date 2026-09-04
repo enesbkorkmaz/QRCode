@@ -1,5 +1,6 @@
 <div style="max-width: 900px; margin: 40px auto; font-family: sans-serif; padding: 20px;">
 
+  <!-- Üst Başlık ve Geri Dön Butonu -->
   <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 25px;">
     <h2>👥 Kullanıcı Yönetimi</h2>
     <a routerLink="/dashboard" style="background: #6c757d; color: white; text-decoration: none; padding: 8px 16px; border-radius: 4px; font-weight: bold;">
@@ -7,6 +8,25 @@
     </a>
   </div>
 
+  <!-- YENİ EKLENEN KISIM: Kullanıcı Ekleme Formu -->
+  <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #e9ecef;">
+    <h4 style="margin-top: 0; margin-bottom: 15px;">Yeni Kullanıcı Ekle</h4>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+      <input type="text" [(ngModel)]="newUser.firstname" placeholder="Ad" style="flex: 1; min-width: 150px; padding: 10px; border: 1px solid #ced4da; border-radius: 4px;">
+      <input type="text" [(ngModel)]="newUser.lastname" placeholder="Soyad" style="flex: 1; min-width: 150px; padding: 10px; border: 1px solid #ced4da; border-radius: 4px;">
+      <input type="email" [(ngModel)]="newUser.email" placeholder="E-posta" style="flex: 2; min-width: 200px; padding: 10px; border: 1px solid #ced4da; border-radius: 4px;">
+      <select [(ngModel)]="newUser.roleid" style="padding: 10px; border: 1px solid #ced4da; border-radius: 4px;">
+        <option [ngValue]="1">Admin</option>
+        <option [ngValue]="2">User</option>
+      </select>
+      <button (click)="createUser()" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+        Ekle
+      </button>
+    </div>
+    <small style="color: #6c757d; display: block; margin-top: 10px;">* Eklenen kullanıcıların varsayılan giriş şifresi <b>123456</b> olarak ayarlanacaktır.</small>
+  </div>
+
+  <!-- Kullanıcı Tablosu -->
   <table style="width: 100%; border-collapse: collapse; text-align: left; border: 1px solid #dee2e6;">
     <thead>
       <tr style="background: #343a40; color: white;">
@@ -15,6 +35,8 @@
         <th style="padding: 12px;">E-Posta</th>
         <th style="padding: 12px;">Rol</th>
         <th style="padding: 12px;">Durum</th>
+        <!-- YENİ EKLENEN SÜTUN: İŞLEMLER -->
+        <th style="padding: 12px; text-align: center;">İşlemler</th>
       </tr>
     </thead>
     <tbody>
@@ -23,8 +45,8 @@
         <td style="padding: 12px; font-weight: bold;">{{ u.firstname }} {{ u.lastname }}</td>
         <td style="padding: 12px;">{{ u.email }}</td>
         <td style="padding: 12px;">
-          <!-- 1 ise Admin, 2 ise User yazdırıyoruz -->
-          <span style="background: #17a2b8; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.85em;">
+          <!-- Admin ise kırmızımsı, User ise mavimsi badge -->
+          <span [style.background]="u.roleid === 1 ? '#dc3545' : '#17a2b8'" style="color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.85em;">
             {{ u.roleid === 1 ? 'Admin' : 'User' }}
           </span>
         </td>
@@ -33,9 +55,24 @@
             {{ u.active ? 'Aktif' : 'Pasif' }}
           </span>
         </td>
+
+        <!-- SİL BUTONU KONTROLÜ (ID BAZLI KESİN ÇÖZÜM) -->
+        <td style="padding: 12px; text-align: center;">
+          <!-- Eğer bu satırın ID'si, giriş yapan kişinin ID'si ile aynıysa: "(Siz)" YAZ -->
+          <span *ngIf="u.id === currentUserId" style="color: #6c757d; font-weight: bold; font-size: 0.9em;">
+            (Siz)
+          </span>
+
+          <!-- Eğer başkasının hesabıysa: SİL BUTONUNU GÖSTER -->
+          <button *ngIf="u.id !== currentUserId" (click)="deleteUser(u.id)" style="background: #e63946; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">
+            Sil
+          </button>
+        </td>
       </tr>
+
+      <!-- Sütun sayısı 6 olduğu için colspan 6 yapıldı -->
       <tr *ngIf="users.length === 0">
-        <td colspan="5" style="text-align: center; padding: 20px;">Sistemde kullanıcı bulunamadı.</td>
+        <td colspan="6" style="text-align: center; padding: 20px;">Sistemde kullanıcı bulunamadı.</td>
       </tr>
     </tbody>
   </table>
