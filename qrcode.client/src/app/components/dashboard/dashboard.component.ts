@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { QrcodeService, Qrcode } from '../../services/qrcode.service';
-import { AuthService } from '../../services/auth.service'; // AUTH SERVICE EKLENDİ
+import { AuthService } from '../../services/auth.service'; // YENİDEN EKLENDİ
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-dashboard',
@@ -12,22 +13,23 @@ import { Router } from '@angular/router';
 export class DashboardComponent implements OnInit {
   qrcodes: Qrcode[] = [];
   newUrl: string = '';
-  isAdmin: boolean = false; // KULLANICI YETKİSİNİ TUTACAĞIMIZ DEĞİŞKEN
+
+  // YENİDEN EKLENDİ: Rol kontrol değişkeni
+  isAdmin: boolean = false;
 
   constructor(
     private qrcodeService: QrcodeService,
-    private authService: AuthService, // İÇERİ AKTARILDI
+    private authService: AuthService, // YENİDEN EKLENDİ
     private router: Router
   ) { }
 
   ngOnInit(): void {
-    // Sayfa açıldığında kişinin yetkisini kontrol et
+    // YENİDEN EKLENDİ: Giriş yapan kişinin Admin olup olmadığını anlıyoruz
     this.isAdmin = this.authService.isAdmin();
 
     this.loadQrcodes();
   }
 
-  // Listeyi Backend'den Çekme
   loadQrcodes(): void {
     this.qrcodeService.getAll().subscribe({
       next: (data) => this.qrcodes = data,
@@ -35,41 +37,72 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  // Yeni QR Kod Ekleme
   createQrcode(): void {
-    if (!this.newUrl.trim()) return;
+    if (!this.newUrl.trim()) {
+      Swal.fire('Uyarı', 'Lütfen yönlendirilecek bir URL girin!', 'warning');
+      return;
+    }
 
-    const newQr: Qrcode = {
-      id: 0,
-      url: this.newUrl,
-      // Tarayıcının kendi kütüphanesini kullanarak benzersiz bir şifreli metin (GUID) üretiyoruz
-      guid: crypto.randomUUID(),
-      active: true
-    };
+    const newQr: Qrcode = { id: 0, url: this.newUrl, active: true };
 
     this.qrcodeService.create(newQr).subscribe({
       next: () => {
+        Swal.fire({
+          title: 'Eklendi!',
+          text: 'Yeni QR Kod başarıyla oluşturuldu.',
+          icon: 'success',
+          timer: 2000,
+          showConfirmButton: false
+        });
         this.newUrl = '';
-        this.loadQrcodes(); // Listeyi güncelle
+        this.loadQrcodes();
       },
-      error: (err) => {
-        console.error('Ekleme hatası:', err);
-        alert('Ekleme başarısız oldu. Lütfen konsolu kontrol edin.');
+      error: (err) => Swal.fire('Hata!', 'QR Kod eklenirken bir sorun oluştu.', 'error')
+    });
+  }
+
+  deleteQrcode(id: number): void {
+    Swal.fire({
+      title: 'Emin misiniz?',
+      text: "Bu QR kod kalıcı olarak silinecektir!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Evet, Sil!',
+      cancelButtonText: 'İptal'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.qrcodeService.delete(id).subscribe({
+          next: () => {
+            Swal.fire('Silindi!', 'QR Kod sistemden kaldırıldı.', 'success');
+            this.loadQrcodes();
+          },
+          error: (err) => Swal.fire('Hata!', 'Silme işlemi başarısız oldu.', 'error')
+        });
       }
     });
   }
 
-  // QR Kod Silme
-  deleteQrcode(id: number): void {
-    if (confirm('Bu QR kodu silmek istediğinize emin misiniz?')) {
-      this.qrcodeService.delete(id).subscribe({
-        next: () => this.loadQrcodes(),
-        error: (err) => console.error('Silme hatası:', err)
-      });
-    }
+  // Durumu (Aktif/Pasif) Değiştirme Fonksiyonu
+  toggleStatus(item: Qrcode): void {
+    const updatedItem = { ...item, active: !item.active }; // Durumu tersine çevir
+
+    this.qrcodeService.update(item.id, updatedItem).subscribe({
+      next: () => {
+        Swal.fire({
+          title: 'Güncellendi!',
+          text: `QR Kod durumu ${updatedItem.active ? 'Aktif' : 'Pasif'} yapıldı.`,
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false
+        });
+        this.loadQrcodes(); // Tabloyu yenile
+      },
+      error: (err) => Swal.fire('Hata!', 'Durum güncellenemedi.', 'error')
+    });
   }
 
-  // Çıkış Yapma
   logout(): void {
     localStorage.removeItem('token');
     this.router.navigate(['/login']);

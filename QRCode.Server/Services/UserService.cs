@@ -46,23 +46,26 @@ namespace QRCode.Server.Services
 
         public async Task<User?> AuthenticateAsync(string email, string password)
         {
-            // Username yerine Email alanından kullanıcıyı buluyoruz
             var user = await _context.Users.SingleOrDefaultAsync(x => x.Email == email);
 
             if (user == null)
             {
-                return null; // Böyle bir email yok
+                return null;
             }
 
-            // Gelen düz şifre ile veritabanındaki Hash'lenmiş (Pwhash) şifreyi karşılaştır
-            var verificationResult = _passwordHasher.VerifyHashedPassword(user, user.Pwhash, password);
+            // GÜNCELLEME: Eğer hesap pasifse, sisteme özel bir hata fırlatıyoruz!
+            if (user.Active == false)
+            {
+                throw new UnauthorizedAccessException("passive_account");
+            }
 
+            var verificationResult = _passwordHasher.VerifyHashedPassword(user, user.Pwhash, password);
             if (verificationResult == PasswordVerificationResult.Failed)
             {
-                return null; // Şifre yanlış
+                return null;
             }
 
-            return user; // Giriş başarılı
+            return user;
         }
         public async Task DeleteAsync(int id)
         {
@@ -70,6 +73,15 @@ namespace QRCode.Server.Services
             if (user != null)
             {
                 _context.Users.Remove(user);
+                await _context.SaveChangesAsync();
+            }
+        }
+        public async Task ToggleStatusAsync(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user != null)
+            {
+                user.Active = !user.Active;
                 await _context.SaveChangesAsync();
             }
         }

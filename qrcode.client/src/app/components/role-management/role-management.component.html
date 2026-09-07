@@ -1,0 +1,56 @@
+<div style="max-width: 900px; margin: 40px auto; font-family: sans-serif; padding: 20px;">
+
+  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 25px;">
+    <h2>🛡️ Rol Yönetimi</h2>
+    <button routerLink="/dashboard" style="background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-weight: bold; cursor: pointer;">
+  ⬅ Panele Dön
+</button>
+  </div>
+
+  <!-- Yeni Rol Ekleme Formu -->
+  <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #e9ecef;">
+    <h4 style="margin-top: 0; margin-bottom: 15px;">Yeni Rol Ekle</h4>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+      <input type="text" [(ngModel)]="newRole.name" placeholder="Rol Adı (Örn: manager)" style="flex: 1; min-width: 150px; padding: 10px; border: 1px solid #ced4da; border-radius: 4px;">
+      <input type="text" [(ngModel)]="newRole.desc" placeholder="Açıklama" style="flex: 2; min-width: 250px; padding: 10px; border: 1px solid #ced4da; border-radius: 4px;">
+      <button (click)="createRole()" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+        Ekle
+      </button>
+    </div>
+  </div>
+
+  <!-- Rol Tablosu -->
+  <table style="width: 100%; border-collapse: collapse; text-align: left; border: 1px solid #dee2e6;">
+    <thead>
+      <tr style="background: #343a40; color: white;">
+        <th style="padding: 12px;">ID</th>
+        <th style="padding: 12px;">Rol Adı</th>
+        <th style="padding: 12px;">Açıklama</th>
+        <th style="padding: 12px; text-align: center;">İşlemler</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let r of roles" style="border-bottom: 1px solid #dee2e6;">
+        <td style="padding: 12px; font-weight: bold;">{{ r.id }}</td>
+        <td style="padding: 12px;">
+          <span style="background: #007bff; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.85em;">
+            {{ r.name | uppercase }}
+          </span>
+        </td>
+        <td style="padding: 12px; color: #6c757d;">{{ r.desc }}</td>
+        <td style="padding: 12px; text-align: center;">
+          <!-- 1 ve 2 numaralı roller için (Sistem) yaz, diğerleri için Sil butonu koy -->
+          <span *ngIf="r.id === 1 || r.id === 2" style="color: #6c757d; font-weight: bold; font-size: 0.9em;">
+            (Sistem Rolü)
+          </span>
+          <button *ngIf="r.id !== 1 && r.id !== 2" (click)="deleteRole(r.id)" style="background: #e63946; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">
+            Sil
+          </button>
+        </td>
+      </tr>
+      <tr *ngIf="roles.length === 0">
+        <td colspan="4" style="text-align: center; padding: 20px;">Sistemde rol bulunamadı.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

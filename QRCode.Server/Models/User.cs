@@ -1,21 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations.Schema; // YENİ EKLENDİ
 
-namespace QRCode.Server.Models;
-
-public partial class User
+namespace QRCode.Server.Models
 {
-    public int Id { get; set; }
+    public partial class User
+    {
+        public int Id { get; set; }
+        public string Email { get; set; } = null!;
+        public string? Firstname { get; set; }
+        public string? Lastname { get; set; }
+        public int Roleid { get; set; }
 
-    public string Email { get; set; } = null!;
+        [Column("active")]
+        public bool Active { get; set; }
 
-    public string? Firstname { get; set; }
-
-    public string? Lastname { get; set; }
-
-    public int Roleid { get; set; }
-
-    public bool Active { get; set; }
-
-    public string Pwhash { get; set; } = null!;
+        public string Pwhash { get; set; } = null!;
+    }
 }

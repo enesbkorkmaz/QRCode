@@ -39,37 +39,42 @@ namespace QRCode.Server.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            // 1. Kullanıcıyı doğrula (UserService'teki PBKDF2 hash kontrolü çalışır)
-            var user = await _userService.AuthenticateAsync(request.Email, request.Password);
-
-            if (user == null)
+            try
             {
-                return Unauthorized("Geçersiz e-posta veya şifre.");
-            }
+                var user = await _userService.AuthenticateAsync(request.Email, request.Password);
 
-            // 2. Başarılıysa JWT Token üret
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]!);
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[]
+                if (user == null)
                 {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(ClaimTypes.Email, user.Email),
-                    new Claim(ClaimTypes.Role, user.Roleid.ToString()) // İleride yetki kontrolü için
-                }),
-                Expires = DateTime.UtcNow.AddHours(2), // Token 2 saat geçerli olsun
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
-                Issuer = _configuration["Jwt:Issuer"],
-                Audience = _configuration["Jwt:Audience"]
-            };
+                    return Unauthorized("Geçersiz e-posta veya şifre.");
+                }
 
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var tokenString = tokenHandler.WriteToken(token);
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]!);
 
-            // 3. Token'ı istemciye (Angular'a) gönder
-            return Ok(new { Token = tokenString });
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(new[]
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                        new Claim(ClaimTypes.Email, user.Email),
+                        new Claim(ClaimTypes.Role, user.Roleid.ToString())
+                    }),
+                    Expires = DateTime.UtcNow.AddHours(2),
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+                    Issuer = _configuration["Jwt:Issuer"],
+                    Audience = _configuration["Jwt:Audience"]
+                };
+
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                var tokenString = tokenHandler.WriteToken(token);
+
+                return Ok(new { Token = tokenString });
+            }
+            catch (UnauthorizedAccessException ex) when (ex.Message == "passive_account")
+            {
+                // HESAP PASİF İSE: 403 Forbidden dönüyoruz
+                return StatusCode(403, new { message = "Hesabınız sistem yöneticisi tarafından askıya alınmıştır." });
+            }
         }
     }
 

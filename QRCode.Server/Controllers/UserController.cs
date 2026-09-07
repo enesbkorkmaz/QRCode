@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using QRCode.Server.Models;
 using QRCode.Server.Services;
 
@@ -39,6 +40,14 @@ namespace QRCode.Server.Controllers
         public async Task<IActionResult> DeleteUser(int id)
         {
             await _userService.DeleteAsync(id);
+            return NoContent();
+        }
+
+        // PUT: api/User/toggle/5 (Kullanıcıyı Aktif/Pasif Yapma)
+        [HttpPut("toggle/{id}")]
+        public async Task<IActionResult> ToggleUserStatus(int id)
+        {
+            await _userService.ToggleStatusAsync(id);
             return NoContent();
         }
     }

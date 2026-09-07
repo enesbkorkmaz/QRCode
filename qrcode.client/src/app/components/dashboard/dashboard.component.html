@@ -6,6 +6,9 @@
     <button *ngIf="isAdmin" routerLink="/users" style="background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 10px;">
       Kullanıcıları Yönet
     </button>
+    <button *ngIf="isAdmin" routerLink="/roles" style="background: #17a2b8; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 10px;">
+      Rolleri Yönet
+    </button>
     <button (click)="logout()" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold;">
       Çıkış Yap
     </button>
@@ -58,6 +61,12 @@
         <td *ngIf="isAdmin" style="padding: 12px; text-align: center;">
           <button (click)="deleteQrcode(item.id)" style="background: #e63946; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">
             Sil
+          </button>
+          <!-- YENİ EKLENEN DURUM DEĞİŞTİRME BUTONU -->
+          <button (click)="toggleStatus(item)"
+                  [style.background]="item.active ? '#ffc107' : '#28a745'"
+                  style="color: black; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-right: 5px; font-weight: bold;">
+            {{ item.active ? 'Pasife Al' : 'Aktif Yap' }}
           </button>
         </td>
       </tr>

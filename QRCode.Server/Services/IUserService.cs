@@ -9,5 +9,6 @@ namespace QRCode.Server.Services
         Task<User> RegisterAsync(User user);
         Task<User?> AuthenticateAsync(string email, string password);
         Task DeleteAsync(int id);
+        Task ToggleStatusAsync(int id);
     }
 }

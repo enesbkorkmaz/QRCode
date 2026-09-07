@@ -40,13 +40,13 @@ export class QrcodeService {
     return this.http.post<Qrcode>(this.apiUrl, qrcode);
   }
 
-  // Var olan QR kodu güncelle (PUT)
-  update(id: number, qrcode: Qrcode): Observable<void> {
-    return this.http.put<void>(`${this.apiUrl}/${id}`, qrcode);
+  update(id: number, qrcode: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}`, qrcode);
   }
 
   // QR kodu sil (DELETE)
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
 }

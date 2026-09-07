@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
+import Swal from 'sweetalert2'; // YENİ: SweetAlert2 kütüphanesini içe aktardık
 
 @Component({
   selector: 'app-user-management',
@@ -12,11 +13,8 @@ import { UserService } from '../../services/user.service';
 export class UserManagementComponent implements OnInit {
   users: any[] = [];
   isAdmin: boolean = false;
-
-  // YENİ: E-posta yerine ID tutacağımız değişken
   currentUserId: number | null = null;
 
-  // Yeni eklenecek kullanıcı için taslak model
   newUser = { email: '', firstname: '', lastname: '', roleid: 2, active: true, pwhash: '123456' };
 
   constructor(
@@ -26,42 +24,43 @@ export class UserManagementComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // 1. Güvenlik Kontrolü: Admin değilse Dashboard'a geri şutla!
     this.isAdmin = this.authService.isAdmin();
     if (!this.isAdmin) {
-      alert('Bu sayfayı görüntüleme yetkiniz yok!');
+      Swal.fire('Yetkisiz Erişim!', 'Bu sayfayı görüntüleme yetkiniz yok.', 'error');
       this.router.navigate(['/dashboard']);
       return;
     }
 
-    // 2. Giriş yapan kişinin ID'sini alıyoruz (Kendi kendini silmeyi engellemek için)
     this.currentUserId = this.authService.getCurrentUserId();
-
-    // 3. Verileri çek
     this.loadUsers();
   }
 
-  // Kullanıcıları Listele (Read)
   loadUsers(): void {
     this.userService.getAll().subscribe({
       next: (data) => this.users = data,
-      error: (err) => console.error('Kullanıcılar yüklenirken hata oluştu', err)
+      error: (err) => console.error('Kullanıcılar yüklenirken hata', err)
     });
   }
 
-  // Yeni Kullanıcı Ekle (Create)
   createUser(): void {
     if (!this.newUser.email || !this.newUser.firstname) {
-      alert('Lütfen en azından İsim ve E-posta alanlarını doldurun!');
+      // ESKİ: alert('Lütfen en azından İsim ve E-posta alanlarını doldurun!');
+      Swal.fire('Eksik Bilgi', 'Lütfen İsim ve E-posta alanlarını doldurun!', 'warning');
       return;
     }
 
     this.userService.create(this.newUser).subscribe({
       next: () => {
-        alert('Kullanıcı başarıyla eklendi!');
-        this.loadUsers(); // Tabloyu yenile
+        // ESKİ: alert('Kullanıcı başarıyla eklendi!');
+        Swal.fire({
+          title: 'Başarılı!',
+          text: 'Yeni kullanıcı sisteme eklendi.',
+          icon: 'success',
+          timer: 2000, // 2 saniye sonra kendi kendine kapanır
+          showConfirmButton: false
+        });
 
-        // Formu temizle
+        this.loadUsers();
         this.newUser.email = '';
         this.newUser.firstname = '';
         this.newUser.lastname = '';
@@ -69,23 +68,58 @@ export class UserManagementComponent implements OnInit {
       },
       error: (err) => {
         console.error('Ekleme hatası:', err);
-        alert('Ekleme başarısız oldu!');
+        Swal.fire('Hata!', 'Kullanıcı eklenirken bir sorun oluştu.', 'error');
       }
     });
   }
 
-  // Kullanıcı Sil (Delete)
   deleteUser(id: number): void {
-    if (confirm('Bu kullanıcıyı sistemden tamamen silmek istediğinize emin misiniz?')) {
-      this.userService.delete(id).subscribe({
-        next: () => {
-          this.loadUsers(); // Tabloyu yenile
-        },
-        error: (err) => {
-          console.error('Silme hatası:', err);
-          alert('Kullanıcı silinemedi!');
-        }
-      });
-    }
+    Swal.fire({
+      title: 'Emin misiniz?',
+      text: "Bu kullanıcı kalıcı olarak silinecektir!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Evet, Sil!',
+      cancelButtonText: 'İptal'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.userService.delete(id).subscribe({
+          next: () => {
+            Swal.fire('Silindi!', 'Kullanıcı sistemden başarıyla kaldırıldı.', 'success');
+            this.loadUsers();
+          },
+          error: (err) => {
+            console.error('Silme hatası:', err);
+            Swal.fire('Hata!', 'Kullanıcı silinemedi!', 'error');
+          }
+        });
+      }
+    });
   }
+
+  // Kullanıcı Hesabını Dondurma/Açma
+  toggleStatus(user: any): void {
+    // BUSINESS LOGIC: Kendi kendini dondurmayı engelle!
+    if (user.id === this.currentUserId) {
+      Swal.fire('İşlem Reddedildi', 'Kendi hesabınızı askıya alamazsınız!', 'warning');
+      return;
+    }
+
+    this.userService.toggleStatus(user.id).subscribe({
+      next: () => {
+        Swal.fire({
+          title: 'Güncellendi!',
+          text: `Kullanıcı hesabı ${user.active ? 'askıya alındı (Pasif)' : 'yeniden aktifleştirildi'}.`,
+          icon: 'success',
+          timer: 2000,
+          showConfirmButton: false
+        });
+        this.loadUsers(); // Tabloyu yenile
+      },
+      error: (err) => Swal.fire('Hata!', 'Kullanıcı durumu değiştirilemedi.', 'error')
+    });
+  }
+
 }

@@ -2,10 +2,10 @@
 
   <!-- Üst Başlık ve Geri Dön Butonu -->
   <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 25px;">
-    <h2>👥 Kullanıcı Yönetimi</h2>
-    <a routerLink="/dashboard" style="background: #6c757d; color: white; text-decoration: none; padding: 8px 16px; border-radius: 4px; font-weight: bold;">
+    <h2>Kullanıcı Yönetimi</h2>
+    <button routerLink="/dashboard" style="background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-weight: bold; cursor: pointer;">
       ⬅ Panele Dön
-    </a>
+    </button>
   </div>
 
   <!-- YENİ EKLENEN KISIM: Kullanıcı Ekleme Formu -->
@@ -45,7 +45,6 @@
         <td style="padding: 12px; font-weight: bold;">{{ u.firstname }} {{ u.lastname }}</td>
         <td style="padding: 12px;">{{ u.email }}</td>
         <td style="padding: 12px;">
-          <!-- Admin ise kırmızımsı, User ise mavimsi badge -->
           <span [style.background]="u.roleid === 1 ? '#dc3545' : '#17a2b8'" style="color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.85em;">
             {{ u.roleid === 1 ? 'Admin' : 'User' }}
           </span>
@@ -56,21 +55,27 @@
           </span>
         </td>
 
-        <!-- SİL BUTONU KONTROLÜ (ID BAZLI KESİN ÇÖZÜM) -->
         <td style="padding: 12px; text-align: center;">
-          <!-- Eğer bu satırın ID'si, giriş yapan kişinin ID'si ile aynıysa: "(Siz)" YAZ -->
+
           <span *ngIf="u.id === currentUserId" style="color: #6c757d; font-weight: bold; font-size: 0.9em;">
             (Siz)
           </span>
 
-          <!-- Eğer başkasının hesabıysa: SİL BUTONUNU GÖSTER -->
-          <button *ngIf="u.id !== currentUserId" (click)="deleteUser(u.id)" style="background: #e63946; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">
-            Sil
-          </button>
+          <ng-container *ngIf="u.id !== currentUserId">
+            <button (click)="toggleStatus(u)"
+                    [style.background]="u.active ? '#ffc107' : '#28a745'"
+                    style="color: black; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-right: 5px; font-weight: bold;">
+              {{ u.active ? 'Dondur' : 'Aktif Yap' }}
+            </button>
+
+            <button (click)="deleteUser(u.id)" style="background: #e63946; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">
+              Sil
+            </button>
+          </ng-container>
+
         </td>
       </tr>
 
-      <!-- Sütun sayısı 6 olduğu için colspan 6 yapıldı -->
       <tr *ngIf="users.length === 0">
         <td colspan="6" style="text-align: center; padding: 20px;">Sistemde kullanıcı bulunamadı.</td>
       </tr>

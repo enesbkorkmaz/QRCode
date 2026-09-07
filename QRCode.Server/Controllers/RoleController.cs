@@ -36,5 +36,28 @@ namespace QRCode.Server.Controllers
 
             return Ok(role);
         }
+
+        // POST: api/Role (Yeni Rol Ekleme)
+        [HttpPost]
+        public async Task<ActionResult<Role>> PostRole(Role role)
+        {
+            var createdRole = await _roleService.CreateAsync(role);
+            return CreatedAtAction(nameof(GetRole), new { id = createdRole.Id }, createdRole);
+        }
+
+        // DELETE: api/Role/5 (Rol Silme)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteRole(int id)
+        {
+            // BACKEND GÜVENLÝÐÝ: Biri Postman gibi dýþ bir araçla silmeye çalýþýrsa diye arka uca da kalkan koyuyoruz
+            if (id == 1 || id == 2)
+            {
+                return BadRequest("Sistem güvenliði: Temel roller silinemez!");
+            }
+
+            await _roleService.DeleteAsync(id);
+            return NoContent();
+        }
     }
+        
 }

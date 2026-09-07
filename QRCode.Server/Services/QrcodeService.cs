@@ -51,5 +51,6 @@ namespace QRCode.Server.Services
                 await _context.SaveChangesAsync();
             }
         }
+
     }
 }

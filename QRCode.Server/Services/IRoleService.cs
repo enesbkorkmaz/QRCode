@@ -6,5 +6,7 @@ namespace QRCode.Server.Services
     {
         Task<IEnumerable<Role>> GetAllAsync();
         Task<Role> GetByIdAsync(int id);
+        Task<Role> CreateAsync(Role role);
+        Task DeleteAsync(int id);
     }
 }
