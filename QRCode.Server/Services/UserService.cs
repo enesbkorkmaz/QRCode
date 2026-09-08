@@ -32,10 +32,9 @@ namespace QRCode.Server.Services
             // Şifreyi Pwhash alanına PBKDF2 algoritmasıyla hash'leyerek kaydediyoruz
             user.Pwhash = _passwordHasher.HashPassword(user, user.Pwhash);
 
-            // Varsayılan olarak sisteme kayıt olanlara "user" rolünü (Örn: Roleid = 2) atayalım
             if (user.Roleid == 0)
             {
-                user.Roleid = 2;
+                user.Roleid = 2; //User rolünü atar
             }
 
             _context.Users.Add(user);
@@ -53,7 +52,6 @@ namespace QRCode.Server.Services
                 return null;
             }
 
-            // GÜNCELLEME: Eğer hesap pasifse, sisteme özel bir hata fırlatıyoruz!
             if (user.Active == false)
             {
                 throw new UnauthorizedAccessException("passive_account");
