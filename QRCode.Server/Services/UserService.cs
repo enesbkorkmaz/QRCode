@@ -18,7 +18,6 @@ namespace QRCode.Server.Services
 
         public async Task<IEnumerable<User>> GetAllAsync()
         {
-            // Include kaldırıldı, doğrudan tabloyu çekiyoruz
             return await _context.Users.ToListAsync();
         }
 
